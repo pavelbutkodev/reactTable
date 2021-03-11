@@ -1,7 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { ApolloServer } = require('apollo-server-express');
 
+const typeDef = require('./models/graphql');
+const resolvers = require('./controllers/graphql');
 const tableRoutes = require('./routes/table');
 const keys = require('./config/keys');
 
@@ -12,6 +15,11 @@ mongoose.connect(keys.mongoDB, {useNewUrlParser: true})
 	.catch((error) => {
 		console.log(error);
 	})
+
+const typeDefs = typeDef;
+
+const server = new ApolloServer({typeDefs, resolvers});
+server.applyMiddleware({app});
 
 app.use(require('morgan')('dev'))
 app.use(bodyParser.urlencoded({extended: true}))
