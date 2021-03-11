@@ -1,5 +1,6 @@
 import React from 'react'
-import { useTable } from 'react-table'
+import {useTable} from 'react-table'
+import {gql, useQuery} from '@apollo/client';
 
 import CssBaseline from '@material-ui/core/CssBaseline'
 import MaUTable from '@material-ui/core/Table'
@@ -48,8 +49,25 @@ function Table({columns, data}) {
 	)
 }
 
+const GET_ALL = gql`
+  query currencys {
+    currencys {
+      id,
+			vehicle,
+			driver,
+			device,
+			location,
+			totalODO
+    }
+  }
+`;
 
 function App() {
+	const {loading, error, data: table} = useQuery(GET_ALL);
+	console.log('===>loading', loading);
+	console.log('===>error', error);
+	const allTable = table && table.currencys || [];
+
 	const columns = React.useMemo(
 		() => [
 			{
@@ -57,18 +75,30 @@ function App() {
 				accessor: 'id',
 			},
 			{
-				Header: 'idid',
-				accessor: 'idid',
+				Header: 'Vehicle',
+				accessor: 'vehicle',
+			},
+			{
+				Header: 'Driver',
+				accessor: 'driver',
+			},
+			{
+				Header: 'Device',
+				accessor: 'device',
+			},
+			{
+				Header: 'Location',
+				accessor: 'location',
+			},
+			{
+				Header: 'Total ODO',
+				accessor: 'totalODO',
 			},
 		],
 		[]
 	)
 
-	const data = React.useMemo(() => [{id: 'oleg', idid: "ogggg"}, {id: 'oleg', idid: "ogggg"}, {
-		id: 'oleg',
-		idid: "ogggg"
-	}, {id: 'oleg', idid: "ogggg"}, {id: 'oleg', idid: "ogggg"}], [])
-
+	const data = React.useMemo(() => allTable, [allTable])
 	return (
 		<div>
 			<CssBaseline/>
