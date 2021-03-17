@@ -11,7 +11,8 @@ const typeDef = gql`
         totalODO: String
     }
     type Query {
-        currencys: [Table]
+        getTables: [Table]
+				removeTables(id: String): String
     }
 `;
 

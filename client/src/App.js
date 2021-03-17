@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {useTable} from 'react-table'
-import {gql, useQuery} from '@apollo/client';
+import {gql, useMutation, useQuery} from '@apollo/client';
 
 import CssBaseline from '@material-ui/core/CssBaseline'
 import MaUTable from '@material-ui/core/Table'
@@ -9,8 +9,10 @@ import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 
+import { observer } from "mobx-react"
+import newStore from "./store"
 
-function Table({columns, data}) {
+const Table = ({columns, data}) => {
 	const {getTableProps, headerGroups, rows, prepareRow} = useTable({
 		columns,
 		data,
@@ -50,8 +52,8 @@ function Table({columns, data}) {
 }
 
 const GET_ALL = gql`
-  query currencys {
-    currencys {
+  query getTables {
+    getTables {
       id,
 			vehicle,
 			driver,
@@ -62,11 +64,24 @@ const GET_ALL = gql`
   }
 `;
 
-function App() {
+const REMOVE_TABLE = gql`
+	mutation removeTable($id: Id){
+		removeTables(id: $id){
+			id
+		}
+	}
+`;
+
+const App = observer(props => {
+	console.log('========>Store',newStore.secondsPassed);
 	const {loading, error, data: table} = useQuery(GET_ALL);
-	console.log('===>loading', loading);
-	console.log('===>error', error);
-	const allTable = table && table.currencys || [];
+	const [removeTables] = useMutation(REMOVE_TABLE)
+	console.log('========>removeTables',removeTables);
+	useEffect(() => {
+		removeTables({ variables: { id: '2' }})
+	}, [])
+
+	const allTable = table && table.getTables || [];
 
 	const columns = React.useMemo(
 		() => [
@@ -94,9 +109,21 @@ function App() {
 				Header: 'Total ODO',
 				accessor: 'totalODO',
 			},
+			{
+				Header: 'Remove',
+				Cell: ({ row }) => {
+					return <div onClick={() => handleDelete(row.id)}>удалить</div>
+				},
+				id: "remove"
+			}
 		],
 		[]
 	)
+
+	const handleDelete = id => {
+		console.log('========>id',id);
+
+	}
 
 	const data = React.useMemo(() => allTable, [allTable])
 	return (
@@ -105,6 +132,6 @@ function App() {
 			<Table columns={columns} data={data}/>
 		</div>
 	)
-}
+})
 
 export default App
