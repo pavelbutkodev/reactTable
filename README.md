@@ -1,4 +1,4 @@
-# graphProject
+# reactTable
 
 ### Super Easy Install
 ```
